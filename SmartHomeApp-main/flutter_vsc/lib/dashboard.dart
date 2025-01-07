@@ -11,46 +11,6 @@ import 'mainTaskboard.dart';
 import 'logout.dart';
 import 'relay_schedule.dart';
 
-class SchedulePersistence {
-  static Future<void> saveSchedules(
-      List<Map<String, dynamic>> schedules) async {
-    // final prefs = await SharedPreferences.getInstance();
-    final schedulesJson = schedules
-        .map((schedule) => {
-              'relay': schedule['relay'],
-              'time':
-                  schedule['time'].toString(), // Chuyển TimeOfDay thành string
-              'action': schedule['action'],
-              'enabled': schedule['enabled'],
-              'repeatDaily': schedule['repeatDaily']
-            })
-        .toList();
-
-    // await prefs.setString('schedules', json.encode(schedulesJson));
-  }
-
-  static Future<List<Map<String, dynamic>>> loadSchedules() async {
-    // final prefs = await SharedPreferences.getInstance();
-    // final schedulesString = prefs.getString('schedules');
-
-    // if (schedulesString != null) {
-    //   final List<dynamic> schedulesJson = json.decode(schedulesString);
-    //   return schedulesJson
-    //       .map((scheduleJson) => {
-    //             'relay': scheduleJson['relay'],
-    //             'time': TimeOfDay.fromDateTime(
-    //                 DateTime.parse(scheduleJson['time'])),
-    //             'action': scheduleJson['action'],
-    //             'enabled': scheduleJson['enabled'],
-    //             'repeatDaily': scheduleJson['repeatDaily']
-    //           })
-    //       .toList();
-    // }
-
-    return [];
-  }
-}
-
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -72,8 +32,6 @@ class _DashboardState extends State<Dashboard>
   late Animation<double> lightlevelAnimation =
       const AlwaysStoppedAnimation(0.0);
 
-  bool isDarkMode = false;
-
   List<Map<String, dynamic>> schedules = [];
 
   @override
@@ -91,22 +49,23 @@ class _DashboardState extends State<Dashboard>
 
       if (snapshot.value != null) {
         final data = snapshot.value as Map<dynamic, dynamic>;
-        // double temp = data['homeTemperature'] ?? 0.0;
-        // double humidity = data['homeHumidity'] ?? 0.0;
-        // double airlevel = data['homeAirlevel'] ?? 0.0;
-        // double lightlevel = data['homeLightlevel'] ?? 0.0;
-        double temp = double.tryParse(data['homeTemperature'].toString()) ?? 0.0;
-        double humidity = double.tryParse(data['homeHumidity'].toString()) ?? 0.0;
-        double airlevel = double.tryParse(data['homeAirlevel'].toString()) ?? 0.0;
-        double lightlevel = double.tryParse(data['homeLightlevel'].toString()) ?? 0.0;
+        double temp =
+            double.tryParse(data['homeTemperature'].toString()) ?? 0.0;
+        double humidity =
+            double.tryParse(data['homeHumidity'].toString()) ?? 0.0;
+        double airlevel =
+            double.tryParse(data['homeAirlevel'].toString()) ?? 0.0;
+        double lightlevel =
+            double.tryParse(data['homeLightlevel'].toString()) ?? 0.0;
 
         setState(() {
           isLoading = true;
           _dashboardinit(temp, humidity, airlevel, lightlevel);
         });
-        Future.delayed(const Duration(seconds: 3), () {
-          _startRealtimeUpdates();
-        });
+        _startRealtimeUpdates();
+        // Future.delayed(const Duration(seconds: 1), () {
+        //   _startRealtimeUpdates();
+        // });
       }
     });
   }
@@ -142,47 +101,37 @@ class _DashboardState extends State<Dashboard>
     progressController.forward();
   }
 
-  // void _startRealtimeUpdates() {
-  //   databaseReference.child('Home').onValue.listen((DatabaseEvent event) {
-  //     final DataSnapshot snapshot = event.snapshot;
-
-  //     if (snapshot.value != null) {
-  //       final data = snapshot.value as Map<dynamic, dynamic>;
-  //       double temp = data['homeTemperature'] ?? 0.0;
-  //       double humidity = data['homeHumidity'] ?? 0.0;
-  //       double airlevel = data['homeAirlevel'] ?? 0.0;
-  //       double lightlevel = data['homeLightlevel'] ?? 0.0;
-
-  //       setState(() {
-  //         _dashboardUpdate(temp, humidity, airlevel, lightlevel);
-  //       });
-  //     }
-  //   });
-  // }
-
   void _startRealtimeUpdates() {
-  databaseReference.child('Home').onValue.listen((DatabaseEvent event) {
-    final DataSnapshot snapshot = event.snapshot;
+    databaseReference.child('Home').once().then((DatabaseEvent event) {
+      final DataSnapshot snapshot = event.snapshot;
 
-    if (snapshot.value != null) {
-      final data = snapshot.value as Map<dynamic, dynamic>;
+      if (snapshot.value != null) {
+        // await Future.delayed(const Duration(seconds: 1));
+        final data = snapshot.value as Map<dynamic, dynamic>;
 
-      double temp = double.tryParse(data['homeTemperature']?.toString() ?? '') ?? 0.0;
-      double humidity = double.tryParse(data['homeHumidity']?.toString() ?? '') ?? 0.0;
-      double airlevel = double.tryParse(data['homeAirlevel']?.toString() ?? '') ?? 0.0;
-      double lightlevel = double.tryParse(data['homeLightlevel']?.toString() ?? '') ?? 0.0;
+        double temp =
+            double.tryParse(data['homeTemperature']?.toString() ?? '') ?? 0.0;
+        // await Future.delayed(const Duration(milliseconds: 10));
+        double humidity =
+            double.tryParse(data['homeHumidity']?.toString() ?? '') ?? 0.0;
+        // await Future.delayed(const Duration(milliseconds: 10));
+        double airlevel =
+            double.tryParse(data['homeAirlevel']?.toString() ?? '') ?? 0.0;
+        // await Future.delayed(const Duration(milliseconds: 10));
+        double lightlevel =
+            double.tryParse(data['homeLightlevel']?.toString() ?? '') ?? 0.0;
+        // await Future.delayed(const Duration(milliseconds: 10));
 
-      setState(() {
-        isLoading = true;
-        _dashboardUpdate(temp, humidity, airlevel, lightlevel);
-      });
-
-      Future.delayed(const Duration(seconds: 3), () {
-        _startRealtimeUpdates();
-      });
-    }
-  });
-}
+        setState(() {
+          isLoading = true;
+          _dashboardUpdate(temp, humidity, airlevel, lightlevel);
+        });
+        Future.delayed(const Duration(seconds: 3), () {
+          _startRealtimeUpdates();
+        });
+      }
+    });
+  }
 
   _dashboardUpdate(double temp, double humid, double air, double light) {
     tempAnimation = Tween<double>(begin: tempAnimation.value, end: temp)
@@ -217,22 +166,17 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: isDarkMode
-          ? ThemeData.dark().copyWith(
-              primaryColor: Colors.black,
-              scaffoldBackgroundColor: Colors.black,
-            )
-          : ThemeData.light().copyWith(
-              primaryColor: Colors.white,
-              scaffoldBackgroundColor: Colors.white,
-            ),
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(
         length: 5,
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: const Color.fromARGB(255, 0, 204, 255),
-            title: const Text('Smart Room App'),
+            backgroundColor: const Color(0xFF021024),
+            title: const Text(
+              'Smart Room App',
+              style: const TextStyle(
+                  color: Color(0xFFc1e8ff), fontWeight: FontWeight.bold),
+            ),
           ),
           body: Stack(
             children: [
@@ -264,23 +208,26 @@ class _DashboardState extends State<Dashboard>
               ),
             ],
           ),
-          bottomNavigationBar: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.home), text: "Home"),
-              Tab(
-                  icon: Icon(Icons.radio_button_checked),
-                  text: "Button Taskboard"),
-              Tab(
-                icon: Icon(Icons.wb_iridescent_rounded),
-                text: "IR Device",
-              ),
-              Tab(icon: Icon(Icons.schedule), text: "Schedule"),
-              Tab(icon: Icon(Icons.logout), text: "Log out"),
-            ],
-            labelColor: Color.fromARGB(255, 93, 223, 255),
-            unselectedLabelColor: Colors.black,
-            indicatorColor: Colors.blue,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
+          bottomNavigationBar: const Material(
+            color: Color(0xFF021024),
+            child: TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.home), text: "Home"),
+                Tab(
+                    icon: Icon(Icons.radio_button_checked),
+                    text: "Button Taskboard"),
+                Tab(
+                  icon: Icon(Icons.wb_iridescent_rounded),
+                  text: "Device",
+                ),
+                Tab(icon: Icon(Icons.schedule), text: "Scheduler"),
+                Tab(icon: Icon(Icons.logout), text: "Log out"),
+              ],
+              labelColor: Color(0xFFc1e8ff),
+              unselectedLabelColor: Color(0xFF7da0ca),
+              indicatorColor: Color(0xFFc1e8ff),
+              labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ),

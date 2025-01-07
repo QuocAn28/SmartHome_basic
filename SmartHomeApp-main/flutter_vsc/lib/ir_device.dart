@@ -12,34 +12,33 @@ class _IRDeviceUIState extends State<IRDeviceUI> {
   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
   Map buttonStates = {};
 
-  final Map<String, String> buttonToFirebaseKey = {
-    '1': 'key1',
-    '2': 'key2',
-    '3': 'key3',
-    '4': 'key4',
-    '5': 'key5',
-    '6': 'key6',
-    '7': 'key7',
-    '8': 'key8',
-    '9': 'key9',
-    '0': 'key0',
-    '*': 'key_star',
-    '#': 'key_sharp',
-    '▲': 'key_up',
-    '◄': 'key_left',
-    'OK': 'key_ok',
-    '►': 'key_right',
-    '▼': 'key_down',
+  final Map<String, int> buttonToFirebaseValue = {
+    '1': 69,
+    '2': 70,
+    '3': 71,
+    '4': 68,
+    '5': 64,
+    '6': 67,
+    '7': 7,
+    '8': 21,
+    '9': 9,
+    '0': 25,
+    '*': 22,
+    '#': 13,
+    '▲': 24,
+    '◄': 8,
+    'OK': 28,
+    '►': 90,
+    '▼': 82,
   };
 
   void _sendSignal(String buttonValue) {
-    String? firebaseKey = buttonToFirebaseKey[buttonValue];
-    if (firebaseKey == null) return;
-
+    int? firebaseValue = buttonToFirebaseValue[buttonValue];
+    if (firebaseValue == null) return;
     setState(() {
       buttonStates[buttonValue] = true;
     });
-    databaseRef.child('ir_device').child(firebaseKey).set(1);
+    databaseRef.child('ir_device/key').set(firebaseValue);
     Future.delayed(const Duration(milliseconds: 300), () {
       setState(() {
         buttonStates[buttonValue] = false;
@@ -51,18 +50,25 @@ class _IRDeviceUIState extends State<IRDeviceUI> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("IR Device"),
-        backgroundColor: const Color.fromARGB(253, 255, 248, 248),
+        title: const Text(
+          "IR Device",
+          style: const TextStyle(
+              color: Color(0xFF021024), fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFFc1e8ff),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Colors.blueAccent,
-              Colors.lightBlue,
-              Color(0xFF2575FC),
+              Color(0xFFc1e8ff),
+              Color(0xFF7da0ca),
+              Color(0xFF5483b3),
+              Color(0xFF2b669c),
+              Color(0xFF052659),
+              Color(0xFF021024),
             ],
           ),
         ),
@@ -72,13 +78,13 @@ class _IRDeviceUIState extends State<IRDeviceUI> {
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: const [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Color(0xFF2b669c),
                   spreadRadius: 2,
                   blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
@@ -129,16 +135,16 @@ class _IRDeviceUIState extends State<IRDeviceUI> {
         height: buttonSize,
         margin: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
-          color: isActive ? Color(0xFF4A90E2) : Colors.white,
+          color: isActive ? Color(0xFF021024) : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isActive ? Color(0xFF2C7BD9) : Colors.grey.shade300,
+            color: isActive ? Color(0xFF021024) : Colors.grey.shade300,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
               color: isActive
-                  ? Color(0xFF4A90E2).withOpacity(0.4)
+                  ? const Color(0xFF7da0ca)
                   : Colors.grey.withOpacity(0.2),
               spreadRadius: 1,
               blurRadius: 6,
@@ -152,7 +158,8 @@ class _IRDeviceUIState extends State<IRDeviceUI> {
             style: TextStyle(
               fontSize: buttonSize * 0.4,
               fontWeight: FontWeight.bold,
-              color: isActive ? Colors.white : Colors.black87,
+              color:
+                  isActive ? const Color(0xFFc1e8ff) : const Color(0xFF021024),
             ),
           ),
         ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'alert.dart';
 import 'ir_device.dart';
 import 'fan.dart';
+import 'subSched.dart';
 
 class Device {
   final String name;
@@ -21,8 +23,22 @@ class Device {
   });
 }
 
-class DeviceControllerScreen extends StatelessWidget {
+class DeviceControllerScreen extends StatefulWidget {
   const DeviceControllerScreen({Key? key}) : super(key: key);
+  @override
+  _DeviceControllerScreen createState() => _DeviceControllerScreen();
+}
+
+class _DeviceControllerScreen extends State<DeviceControllerScreen>
+    with SingleTickerProviderStateMixin {
+  final FirebaseAlertService _firebaseAlertService = FirebaseAlertService();
+
+  @override
+  void initState() {
+    super.initState();
+    _firebaseAlertService.listenForFireValue(context);
+    RelayScheduleService().loadSchedulesFromFirebase();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,16 +67,19 @@ class DeviceControllerScreen extends StatelessWidget {
       ),
       Device(
         name: "Device 3",
-        icon: Icons.light,
-        backgroundColor: Colors.yellow.shade100,
+        icon: Icons.fireplace_outlined,
+        backgroundColor: Colors.red.shade100,
         onTap: () {
-          //Device3
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => DangerAlert()),
+          // );
         },
       ),
       Device(
         name: "Device 4",
         icon: Icons.device_thermostat,
-        backgroundColor: Colors.cyan.shade100,
+        backgroundColor: Colors.yellow.shade100,
         onTap: () {
           // Device 4
         },
@@ -70,21 +89,35 @@ class DeviceControllerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Controller',
-            style:
-                TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-        backgroundColor: Colors.white,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Color(0xFF021024))),
+        backgroundColor: Color(0xFFc1e8ff),
         elevation: 0,
         centerTitle: true,
       ),
       body: Container(
-        color: Colors.white,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              // Color(0xFFc1e8ff),
+              Color(0xFF7da0ca),
+              Color(0xFF5483b3),
+              Color(0xFF2b669c),
+              Color(0xFF052659),
+              Color(0xFF021024),
+            ],
+          ),
+        ),
+        // color: Colors.white,
         child: GridView.builder(
           padding: const EdgeInsets.all(16),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.8,
+            childAspectRatio: 1,
           ),
           itemCount: devices.length,
           itemBuilder: (context, index) {
@@ -102,15 +135,18 @@ class DeviceControllerScreen extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: device.backgroundColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(device.icon,
-                  size: 50, color: const Color.fromARGB(200, 0, 0, 0)),
+              Icon(
+                device.icon,
+                size: 50,
+                color: const Color(0xFF021024),
+              ),
               const SizedBox(height: 8),
               Text(
                 device.name,

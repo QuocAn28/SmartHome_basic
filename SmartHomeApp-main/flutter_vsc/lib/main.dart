@@ -16,8 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 0, 204, 255)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF213A58)),
         useMaterial3: true,
       ),
       home: const LoginScreen(title: 'Smart Room App'),
@@ -25,11 +24,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-// {
-//   "rules": {
-//     ".read": "now < 1736355600000",  // 2025-1-9
-//     ".write": "now < 1736355600000",  // 2025-1-9
-//   }
-// }
